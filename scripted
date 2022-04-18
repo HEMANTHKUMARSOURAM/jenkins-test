@@ -1,0 +1,26 @@
+node('master')
+{
+    stage('continues download')
+    {
+        git ('https://github.com/HEMANTHKUMARSOURAM/java-project.git')
+    }
+    stage('continues build')
+    {
+        sh ('mvn package')
+    }
+    stage('contiinous deployment in test')
+    {
+        sh ('scp /var/lib/jenkins/workspace/scripted_pipeline/webapp/target/webapp.war root@172.31.9.23:/var/lib/tomcat9/webapps/testenv.war')
+    }
+    stage('continous testing')
+    {
+        git 'https://github.com/balajimanipi/FunctionlTesting.git'
+        sh ('java -jar /var/lib/jenkins/workspace/scripted_pipeline/testing.jar')
+    }
+    stage('continousdeployment in prodenv')
+    {
+        input message: 'waiting approval from the shk', submitter: 'shk'
+        sh ('scp /var/lib/jenkins/workspace/scripted_pipeline/webapp/target/webapp.war root@172.31.12.112:/var/lib/tomcat9/webapps/prodenv.war')
+    }
+   
+}
